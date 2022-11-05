@@ -1,5 +1,5 @@
 let reservas = require("./reservas.json")
-
+let request = require("axios")
 
 const reservasGet = () =>{
 
@@ -7,8 +7,24 @@ const reservasGet = () =>{
 
 }
 
-const reservasSet = (reserva) =>{
+const reservasSet = async (reserva) =>{
+    console.log("llama a reserva a guardar")
+    await request.get(
+        "http://localhost:8081/vuelos/id/?id="+reserva.idvuelo
+    )
+    .then(
+        (res)=>{
+            console.log("recibimos llamada del vuelo")
+            console.log(res)
+            console.log(res.data)
+            reserva.vuelo = res.data
+        }
+    )
+    
+    console.log(reserva)
     reservas.push(reserva)
+    console.log(reservas)
+
     return reservas
 
 }

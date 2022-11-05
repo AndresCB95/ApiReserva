@@ -11,7 +11,7 @@ const port = 8084
 app.use(cors())
 app.use(body_parse.json())
 
-const pathName="reservas/"
+const pathName="/reservas"
 
 
 app.get(pathName,
@@ -24,10 +24,10 @@ app.get(pathName,
 
 
 app.post(pathName,
-    (req, res)=>{
+    async (req, res)=>{
         console.log("Recibimos peticion")
         console.log(req.body)
-        let reservas = reservasService.reservasSetExport(req.body)
+        let reservas = await reservasService.reservasSetExport(req.body)
         res.send({"mensaje":"reserva Guardado","reservas":reservas})
     }
 )
