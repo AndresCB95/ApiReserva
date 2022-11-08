@@ -9,19 +9,28 @@ const reservasGet = () =>{
 }
 
 const reservasSet = async (reserva) =>{
-    console.log("llama vuelo")
-    await request.get("http://localhost:8081/vuelos/id?id=BM01").then(
-    (res)=>{
-        console.log("Recibio vuelo")
-        console.log(res.data)
-        console.log(reserva)
-        reserva.vuelo=res.data
-        console.log(reserva)
-    })
-    console.log("espera termina")
-    console.log(reserva)
+    console.log("llama a reserva a guardar")
+    const vuelo = request.get(
+        "http://localhost:8081/vuelos/id/?id="+reserva.vuelo
+    )
+    const cliente = request.get("http://localhost:8082/clientes/id/?id="+reserva.cliente)
+
+    await request.all([vuelo, cliente])
+    .then(
+        (res)=>{
+            console.log("recibimos llamada del vuelo")
+            console.log(res)
+            console.log(res[0].data)
+            console.log(res[1].data)
+            reserva.vuelo = res[0].data
+            reserva.cliente = res[1].data
+        }
+    )
+    
+    //console.log(reserva)
     reservas.push(reserva)
-    console.log(reservas)
+    //console.log(reservas)
+
     return reservas
 
 }
