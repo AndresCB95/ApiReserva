@@ -22,6 +22,15 @@ app.get(pathName,
     }
 )
 
+app.get(pathName+"/pendientes/idcliente",
+    (req, res)=>{
+        console.log("Recibimos peticion")
+        console.log(req)
+        idclient = req.query.id
+        res.send(reservasService.reservasPendientesIdgetExport(id))
+    }
+)
+
 
 app.post(pathName,
     async (req, res)=>{
@@ -50,11 +59,11 @@ app.put(pathName,
     }
 )
 
-app.patch(pathName,
+app.patch(pathName+"/reservas/estado",
     (req, res)=>{
         console.log("Recibimos peticion")
         console.log(req.body)
-        res.send("Finaliza")
+        res.send(reservasService.setEstadoReservaExport(req.body))
     }
 )
 
