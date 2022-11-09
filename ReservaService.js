@@ -1,5 +1,12 @@
-let reservas = require("./reservas.json")
+const getMongo = require("./mongodb.js")
 let request = require("axios")
+
+async function getConexiones() {
+    const nameDb = "aerolineaG1y2"
+    const client = await getMongo.getClientnExport(nameDb)
+    const collection = await getMongo.getCollectionExport(client, nameDb)
+    return { collection, client }
+}
 
 const reservasGet = () =>{
 
@@ -19,6 +26,7 @@ const setEstadoReservaExport = (reservaPago) =>{
 }
 
 const reservasSet = async (reserva) =>{
+    const { collection, client } = await getConexiones()
     console.log("llama a reserva a guardar")
     const vuelo = request.get(
         "http://localhost:8081/vuelos/id/?id="+reserva.idvuelo
@@ -52,9 +60,15 @@ const reservasSet = async (reserva) =>{
     )
     
     console.log(reserva)
-    reservas.push(reserva)
-    console.log(reservas)
 
+    await collection.insertOne(reserva).then(
+        (resultado)=>{
+            console.log(resultado)
+        }
+    )
+
+    await getMongo.closeClientExport(client)
+    
     return reservas
 
 }
