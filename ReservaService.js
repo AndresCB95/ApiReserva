@@ -8,20 +8,26 @@ async function getConexiones() {
     return { collection, client }
 }
 
-const reservasGet = () =>{
-
-    return reservas
-
+const reservasGet = async (idcliente) =>{
+    const { collection, client } = await getConexiones()
+    const reservas = collection.find({"idcliente":idcliente})
+    const reservasList = await reservas.toArray()
+    await getMongo.closeClientExport(client)
+    return reservasList
 }
 
-const setEstadoReservaExport = (reservaPago) =>{
+const setEstadoReserva = async(reservaPago) =>{
+    const { collection, client } = await getConexiones()
 
-    for(let i = 0; i<reservas.length; i++){
+    /*for(let i = 0; i<reservas.length; i++){
         if(reservas[i].id === reservaPago.idreserva){
             reservas[i].estadoPago = reservaPago.estadoReserva
             i = reservas.length
         }
-    }
+    }*/
+
+    collection.updateOne({"_id":reservaPago.idreserva},{"$set":{"estadoPago":reservaPago.estadoReserva}})
+    await getMongo.closeClientExport(client) 
     return "Reserva con pago confirmado"
 }
 
@@ -59,6 +65,10 @@ const reservasSet = async (reserva) =>{
         }
     )
     
+    for(let i = 0 ; i < reserva.sillas.length; i++ ){
+        reserva.sillas[i].cancelada = true
+    }
+
     console.log(reserva)
 
     await collection.insertOne(reserva).then(
@@ -69,7 +79,7 @@ const reservasSet = async (reserva) =>{
 
     await getMongo.closeClientExport(client)
     
-    return reservas
+    return reserva
 
 }
 
@@ -83,20 +93,37 @@ const reservasDelete = (id) =>{
     return reservas
 }
 
-const reservasPendientesIdget = (idcliente)=>{
-
-    const reservasCliente= reservas.filter(
-        (reser) =>{
-        
-            return reser.estadoPago === "Pendiente" && reser.idcliente === idcliente
-        }
-    )
-
-    return reservasCliente
-
+const reservasPendientesIdget = async (idcliente)=>{
+    const { collection, client } = await getConexiones()
+    const reservasCliente= collection.find({"estadoPago":"Pendiente","idcliente":idcliente})
+    const reservasClienteList = reservasCliente.toArray()
+    await getMongo.closeClientExport(client)
+    return reservasClienteList
 }
+
+const reservasACancelar = async ()=>{
+    const { collection, client } = await getConexiones()
+    const reservasCanceladas= collection.find({"estadoPago":"Pendiente"})
+    await reservasCanceladas.forEach(
+        async (reserva) => {
+            await request.patch(
+                "http://localhost:8081/vuelos/sillas?id="+reserva.idvuelo,
+                reserva.sillas
+        ).then(
+            async()=> {
+                await collection.updateOne({"_id":reserva._id},{"$set":{"estadoPago":"Cancelada"}})
+            }
+        )
+    });
+    await getMongo.closeClientExport(client)
+    return "Reservas Canceladas"
+}
+
+
 
 module.exports.reservasgetExport = reservasGet;
 module.exports.reservasSetExport = reservasSet;
 module.exports.reservasDeleteExport = reservasDelete;
 module.exports.reservasPendientesIdgetExport = reservasPendientesIdget;
+module.exports.setEstadoReservaExport = setEstadoReserva;
+module.exports.reservasACancelarExport = reservasACancelar;

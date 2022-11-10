@@ -31,6 +31,13 @@ app.get(pathName+"/pendientes/idcliente",
     }
 )
 
+app.get(pathName+"/reservascanceladas",
+    async (req, res)=>{
+        console.log("Recibimos peticion")
+        res.send(await reservasService.reservasACancelarExport())
+    }
+)
+
 
 app.post(pathName,
     async (req, res)=>{
