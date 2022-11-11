@@ -104,9 +104,10 @@ const reservasPendientesIdget = async (idcliente)=>{
 const reservasACancelar = async ()=>{
     const { collection, client } = await getConexiones()
     const reservasCanceladas= collection.find({"estadoPago":"Pendiente"})
-    await reservasCanceladas.forEach(
-        async (reserva) => {
-            await request.patch(
+    const reservasCanceladaslist = await reservasCanceladas.toArray()
+    for (let i = 0 ; i <reservasCanceladaslist.length;i++) {
+        let reserva = reservasCanceladaslist[i]
+        await request.patch(
                 "http://localhost:8081/vuelos/sillas?id="+reserva.idvuelo,
                 reserva.sillas
         ).then(
@@ -114,7 +115,7 @@ const reservasACancelar = async ()=>{
                 await collection.updateOne({"_id":reserva._id},{"$set":{"estadoPago":"Cancelada"}})
             }
         )
-    });
+    };
     await getMongo.closeClientExport(client)
     return "Reservas Canceladas"
 }
