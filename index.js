@@ -17,17 +17,16 @@ const pathName="/reservas"
 app.get(pathName,
     (req, res)=>{
         console.log("Recibimos peticion")
-        console.log(req)
         res.send(reservasService.reservasgetExport())
     }
 )
 
-app.get(pathName+"/pendientes/idcliente",
-    (req, res)=>{
+app.get(pathName+"/estado/idcliente",
+    async (req, res)=>{
         console.log("Recibimos peticion")
-        console.log(req)
         idclient = req.query.id
-        res.send(reservasService.reservasPendientesIdgetExport(id))
+        estado = req.query.estado
+        res.send(await reservasService.reservasEstadoIdgetExport(idclient,estado))
     }
 )
 
@@ -41,10 +40,16 @@ app.get(pathName+"/reservascanceladas",
 
 app.post(pathName,
     async (req, res)=>{
-        console.log("Recibimos peticion")
-        console.log(req.body)
-        let reservas = await reservasService.reservasSetExport(req.body)
-        res.send({"mensaje":"reserva Guardado","reservas":reservas})
+        try {
+            console.log("Recibimos peticion")
+            console.log(req.body)
+            let reservas = await reservasService.reservasSetExport(req.body)
+            res.send({"mensaje":"reserva Guardado","reservas":reservas})
+        } catch (error) {
+            res.status(500)
+            res.send({"mensaje":error})
+        }
+        
     }
 )
 
