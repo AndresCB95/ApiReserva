@@ -49,15 +49,15 @@ const reservasSet = async (reserva) =>{
     
     console.log("llama a reserva a guardar")
     const vuelo = request.get(
-        "http://localhost:8081/vuelos/id/?id="+reserva.idvuelo
+        "http://192.168.1.7:8081/vuelos/id/?id="+reserva.idvuelo
     )
 
     const cliente = request.get(
-        "http://localhost:8082/clientes/id/?id="+reserva.idcliente
+        "http://192.168.1.7:8082/clientes/id/?id="+reserva.idcliente
     )
 
     const reservaVuelo = request.patch(
-        "http://localhost:8081/vuelos/sillas?id="+reserva.idvuelo,
+        "http://192.168.1.7:8081/vuelos/sillas?id="+reserva.idvuelo,
         reserva.sillas
     )
     
@@ -89,6 +89,7 @@ const reservasSet = async (reserva) =>{
     .catch(
         (res)=>{
             console.log("Error")
+            console.log(res)
             throw res
         }
     )
@@ -128,7 +129,7 @@ const reservasACancelar = async ()=>{
     for (let i = 0 ; i <reservasCanceladaslist.length;i++) {
         let reserva = reservasCanceladaslist[i]
         await request.patch(
-                "http://localhost:8081/vuelos/sillas?id="+reserva.idvuelo,
+                "http://192.168.1.7:8081/vuelos/sillas?id="+reserva.idvuelo,
                 reserva.sillas
         ).then(
             async()=> {
